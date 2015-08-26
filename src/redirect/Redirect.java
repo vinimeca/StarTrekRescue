@@ -1,16 +1,15 @@
 package redirect;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,11 +27,14 @@ import static startrekrescue.StarTrekRescue.tripulantes;
 
 /**
  *
- * @author Vinicius Meca
- * Casse para redirecionar output java para um JFrame
+ * @author Vinicius Meca Classe para redirecionar output java para um JFrame
  */
 public class Redirect {
 
+    public int dificuldadeSelected;
+    public String[] dificuldade = {"Fácil", "Difícil"};
+    public JComboBox cbDificuldade = new JComboBox(dificuldade);
+    
     public static void main(String[] args) {
 
     }
@@ -50,37 +52,86 @@ public class Redirect {
                 }
 
                 CapturePane capturePane = new CapturePane();
-                               
+
                 JFrame frame = new JFrame();
                 frame.setTitle("Star Trek Rescue");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setLayout(new BorderLayout());
                 frame.add(capturePane);
-                frame.setSize(700, 490);                
+                frame.setSize(700, 490);
                 frame.setLocationRelativeTo(null);
-                frame.setLocation(10,10);
+                frame.setLocation(10, 10);
                 frame.setVisible(true);
-                               
-                
+
+                JFrame frame2 = new JFrame();
+                frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame2.setSize(250, 100);
+                frame2.setLocationRelativeTo(null);
+                frame2.setLocation(695, 10);
+                frame2.setVisible(true);
+
+                FlowLayout flow = new FlowLayout(FlowLayout.RIGHT);
+                JButton btReset = new JButton("Reiniciar");
+                JButton btExit = new JButton("Fechar");
+
+                btReset.setSize(350, 80);
+                                
+                btReset.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        startrekrescue.StarTrekRescue.init();
+                        initStarTrekRescue();
+                        dificuldade();
+                    }
+                });
+
+                btExit.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        fechar();
+                    }
+                });
+
+                JPanel panel = new JPanel();
+                panel.add(cbDificuldade);
+                panel.add(btReset);
+                panel.add(btExit);
+                frame2.add(panel);
 
                 PrintStream ps = System.out;
                 System.setOut(new PrintStream(new StreamCapturer("STDOUT", capturePane, ps)));
-                
-                //main StarTrekRescue
-                System.out.println("Bem vindo ao Star Trek Rescue. Encontre os "+num_tripulantes+" tripulantes perdidos!");
-                initPlaneta(planeta);
-                initTripulantes(tripulantes);
 
-                System.out.println();
-
-                searchTripulantes();
-
-                showPlaneta(planeta);
-                System.out.println("Fim da busca! Todos os tripulantes foram encontrados com " + tentativas + " sinalizadores!");
-                //Fim main StarTrekRescue
+                initStarTrekRescue();
             }
         });
     }
+
+    //Metodo para setar dificuldade
+    public void dificuldade() {
+        dificuldadeSelected = cbDificuldade.getSelectedIndex();
+    }
+    //Fim Metodo para setar dificuldade
+
+    //Metodo para iniciar classe StarTrekRescue
+    public void initStarTrekRescue() {        
+        System.out.println("Bem vindo ao Star Trek Rescue. Encontre os " + num_tripulantes + " tripulantes perdidos!");
+        initPlaneta(planeta);
+        initTripulantes(tripulantes);
+
+        System.out.println();   
+        
+        dificuldade();
+
+        searchTripulantes(dificuldadeSelected);
+
+        showPlaneta(planeta);
+        System.out.println("Fim da busca! Todos os tripulantes foram encontrados com " + tentativas + " sinalizadores!");        
+    }
+    //Fim Metodo para iniciar classe StarTrekRescue
+
+    //Metodo para fechar programa
+    public void fechar() {
+        System.exit(JFrame.WIDTH);
+    }
+    //Fim Metodo para fechar programa
 
     public class CapturePane extends JPanel implements Consumer {
 
@@ -88,7 +139,7 @@ public class Redirect {
 
         public CapturePane() {
             setLayout(new BorderLayout());
-            output = new JTextArea();            
+            output = new JTextArea();
             add(new JScrollPane(output));
         }
 
